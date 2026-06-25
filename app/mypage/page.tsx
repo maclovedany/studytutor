@@ -1,12 +1,30 @@
 import { requireUser } from "@/lib/auth";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { sumPoints } from "@/lib/points";
 import { Badge, ButtonLink, Card, PageHeader } from "@/components/ui";
+import type { PointEvent } from "@/lib/types";
 
 export default async function MyPage() {
   const profile = await requireUser();
+  const supabase = await createServerSupabase();
+  const { data: events } = await supabase.from("point_events").select("points");
+  const totalPoints = sumPoints((events as Pick<PointEvent, "points">[]) ?? []);
 
   return (
     <div>
       <PageHeader title="마이페이지" desc="회원 정보와 상태를 확인하세요." />
+
+      <Card className="mb-4 flex items-center justify-between bg-gradient-to-br from-blue-600 to-blue-500 text-white">
+        <div>
+          <p className="text-sm text-blue-100">총 보유 포인트</p>
+          <p className="mt-1 text-3xl font-extrabold">
+            {totalPoints.toLocaleString()} <span className="text-xl">P</span>
+          </p>
+        </div>
+        <ButtonLink href="/points" variant="secondary" className="bg-white/95">
+          내역 보기
+        </ButtonLink>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
