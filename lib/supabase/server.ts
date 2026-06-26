@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./env";
 
 /**
  * 서버 컴포넌트/Route Handler 용 Supabase 클라이언트 — anon key + 사용자 쿠키 세션.
@@ -7,10 +8,7 @@ import { cookies } from "next/headers";
  */
 export async function createServerSupabase() {
   const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       cookies: {
         getAll() {
           return cookieStore.getAll();

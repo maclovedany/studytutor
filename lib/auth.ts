@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "./supabase/server";
+import { isSupabaseConfigured } from "./supabase/env";
 import type { Profile } from "./types";
 
 /** 순수 함수: admin role 여부. */
@@ -14,6 +15,8 @@ export function canAccessAdmin(profile: Pick<Profile, "role"> | null): boolean {
 
 /** 현재 세션의 사용자 + profiles 행을 반환. 미로그인 시 null. */
 export async function getSessionProfile(): Promise<Profile | null> {
+  // Supabase 미설정 시 비로그인 상태로 취급 → 공개 화면은 정상 렌더
+  if (!isSupabaseConfigured) return null;
   const supabase = await createServerSupabase();
   const {
     data: { user },

@@ -1,11 +1,9 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./env";
 
 /** 브라우저(클라이언트 컴포넌트)용 Supabase 클라이언트 — anon key 사용. */
 export function createBrowserSupabase() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }

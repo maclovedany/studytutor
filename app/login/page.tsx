@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabase } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { Button, Card, Input } from "@/components/ui";
 import { siteConfig } from "@/lib/site-config";
 
@@ -44,6 +45,10 @@ function LoginInner() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!isSupabaseConfigured) {
+      setError("Supabase가 설정되지 않았습니다. .env.local을 확인하세요.");
+      return;
+    }
     setError(null);
     setInfo(null);
     setLoading(true);
@@ -83,6 +88,10 @@ function LoginInner() {
   }
 
   async function handleKakao() {
+    if (!isSupabaseConfigured) {
+      setError("Supabase가 설정되지 않았습니다. .env.local을 확인하세요.");
+      return;
+    }
     setError(null);
     const supabase = createBrowserSupabase();
     const siteUrl =
@@ -125,6 +134,13 @@ function LoginInner() {
           </button>
         </div>
 
+        {!isSupabaseConfigured && (
+          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+            Supabase가 설정되지 않아 로그인을 사용할 수 없습니다. <code>.env.local</code>에
+            키를 입력하고 dev 서버를 재시작하세요.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-5 space-y-3">
           {mode === "signup" && (
             <Input
@@ -155,7 +171,11 @@ function LoginInner() {
           )}
           {error && <p className="text-sm text-red-600">{error}</p>}
           {info && <p className="text-sm text-green-600">{info}</p>}
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            disabled={loading || !isSupabaseConfigured}
+            className="w-full"
+          >
             {loading ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}
           </Button>
         </form>
@@ -169,7 +189,8 @@ function LoginInner() {
         <button
           onClick={handleKakao}
           type="button"
-          className="w-full rounded-xl bg-[#FEE500] py-3 text-sm font-semibold text-[#191600] hover:brightness-95"
+          disabled={!isSupabaseConfigured}
+          className="w-full rounded-xl bg-[#FEE500] py-3 text-sm font-semibold text-[#191600] hover:brightness-95 disabled:opacity-50"
         >
           카카오로 시작하기
         </button>

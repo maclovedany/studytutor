@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import SetupBanner from "@/components/SetupBanner";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full">
+        <SetupBanner />
         <Nav />
         <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
       </body>
