@@ -3,6 +3,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { sumPoints } from "@/lib/points";
 import { Badge, ButtonLink, Card, PageHeader } from "@/components/ui";
 import type { PointEvent } from "@/lib/types";
+import PhoneVerify from "./PhoneVerify";
 
 export default async function MyPage() {
   const profile = await requireUser();
@@ -76,6 +77,26 @@ export default async function MyPage() {
           </div>
         </Card>
       </div>
+
+      <Card className="mt-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-500">휴대폰 인증</h2>
+          {profile.phone_verified_at ? (
+            <Badge tone="green">인증완료</Badge>
+          ) : (
+            <Badge tone="amber">상담예약을 위해 인증이 필요해요</Badge>
+          )}
+        </div>
+        {profile.phone_verified_at ? (
+          <p className="mt-3 text-sm text-slate-600">
+            인증된 번호: {profile.phone ?? "-"}
+          </p>
+        ) : (
+          <div className="mt-3">
+            <PhoneVerify />
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
