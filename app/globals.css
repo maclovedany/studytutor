@@ -13,4 +13,8 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  /* 한글이 줄바꿈 시 음절 단위로 잘리지 않도록 — 공백/단어 경계에서만 줄바꿈 */
+  word-break: keep-all;
+  /* 긴 URL 등 끊을 곳 없는 문자열만 필요 시 줄바꿈 */
+  overflow-wrap: break-word;
 }
