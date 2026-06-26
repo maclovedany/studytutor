@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "./supabase/server";
 import { isSupabaseConfigured } from "./supabase/env";
+import { ensureProfile } from "./ensure-profile";
 import type { Profile } from "./types";
 
 /** 순수 함수: admin role 여부. */
@@ -28,7 +29,10 @@ export async function getSessionProfile(): Promise<Profile | null> {
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
-  return (data as Profile) ?? null;
+  if (data) return data as Profile;
+
+  // 프로필이 없으면(트리거 미설치/트리거 이전 가입자) 서버에서 생성 시도
+  return await ensureProfile(user);
 }
 
 /** 로그인 필수. 미로그인 시 /login 으로 redirect. */

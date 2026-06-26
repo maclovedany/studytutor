@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
+import { ensureProfile } from "@/lib/ensure-profile";
 import { runAfterSignup } from "@/lib/after-signup";
 
 /**
@@ -25,6 +26,8 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminSupabase();
+  // 포인트 지급은 profiles FK에 의존하므로 먼저 프로필을 보장한다.
+  await ensureProfile(user);
   const result = await runAfterSignup(admin, { userId: user.id, refCode });
   return NextResponse.json({ ok: true, ...result });
 }
