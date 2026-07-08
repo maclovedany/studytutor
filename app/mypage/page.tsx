@@ -4,6 +4,7 @@ import { sumPoints } from "@/lib/points";
 import { Badge, ButtonLink, Card, PageHeader } from "@/components/ui";
 import type { PointEvent } from "@/lib/types";
 import PhoneVerify from "./PhoneVerify";
+import DeleteAccount from "./DeleteAccount";
 
 export default async function MyPage() {
   const profile = await requireUser();
@@ -96,6 +97,17 @@ export default async function MyPage() {
             <PhoneVerify />
           </div>
         )}
+      </Card>
+
+      <Card className="mt-4 border-red-200">
+        <h2 className="text-sm font-semibold text-red-600">회원 탈퇴</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          계정을 삭제하면 포인트·상담·결제 등 모든 데이터가 사라지며 복구할 수
+          없습니다.
+        </p>
+        <div className="mt-3">
+          <DeleteAccount />
+        </div>
       </Card>
     </div>
   );
