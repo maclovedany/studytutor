@@ -18,3 +18,51 @@ body {
   /* 긴 URL 등 끊을 곳 없는 문자열만 필요 시 줄바꿈 */
   overflow-wrap: break-word;
 }
+
+/* ── 히어로 배경: 떠다니는 오로라(블롭) 애니메이션 ── */
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(8%, -10%) scale(1.12);
+  }
+  66% {
+    transform: translate(-6%, 8%) scale(0.92);
+  }
+}
+
+@keyframes hero-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-blob {
+  animation: blob 16s ease-in-out infinite;
+}
+.animate-hero-pan {
+  background-size: 200% 200%;
+  animation: hero-pan 18s ease infinite;
+}
+.blob-delay-1 {
+  animation-delay: -5s;
+}
+.blob-delay-2 {
+  animation-delay: -10s;
+}
+
+/* 모션 최소화 설정 사용자는 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob,
+  .animate-hero-pan {
+    animation: none;
+  }
+}
