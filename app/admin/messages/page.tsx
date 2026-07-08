@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import type { MessageJob, MessageStatus } from "@/lib/types";
+import DispatchButton from "./DispatchButton";
 
 const statusTone: Record<MessageStatus, "amber" | "green" | "red"> = {
   pending: "amber",
@@ -22,8 +23,19 @@ export default async function AdminMessagesPage() {
     <div>
       <PageHeader
         title="메시지 예약"
-        desc="가입 후 1/3/7일 자동 메시지 예약 목록입니다. (실제 발송은 MVP 범위 밖)"
+        desc="가입 후 1/3/7일 자동 메시지 예약 목록입니다. 발송 시점이 지난 pending 건은 발송 처리됩니다. (데모: 실제 전송 대신 서버 콘솔 로그)"
       />
+      <Card className="mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-slate-500">
+            발송 시점이 된 예약을 지금 발송 처리합니다. 실서비스에서는 스케줄러가
+            1분마다 자동 호출합니다.
+          </p>
+        </div>
+        <div className="mt-3">
+          <DispatchButton />
+        </div>
+      </Card>
       <Card>
         <table className="w-full text-sm">
           <thead>
