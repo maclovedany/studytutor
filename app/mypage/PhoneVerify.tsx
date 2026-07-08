@@ -21,10 +21,10 @@ export default function PhoneVerify() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone }),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) {
-      setMsg(data.error ?? "전송 실패");
+      setMsg(data.error ?? "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
     setSent(true);
@@ -39,10 +39,10 @@ export default function PhoneVerify() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) {
-      setMsg(data.error ?? "인증 실패");
+      setMsg(data.error ?? "인증에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
     router.refresh();

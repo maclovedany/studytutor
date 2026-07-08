@@ -14,6 +14,14 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
+  // service_role 미설정 시 createAdminSupabase() 예외 → 빈 500 방지, 명확한 JSON 에러로 응답.
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json(
+      { error: "서버 설정 오류로 인증을 처리할 수 없습니다. (SUPABASE_SERVICE_ROLE_KEY 미설정)" },
+      { status: 503 }
+    );
+  }
+
   let input: string | undefined;
   try {
     input = (await request.json())?.code;
