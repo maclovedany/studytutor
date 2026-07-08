@@ -103,7 +103,7 @@ function LoginInner() {
     });
     if (error)
       setError(
-        "카카오 로그인이 아직 설정되지 않았습니다. README의 카카오 설정을 참고하세요."
+        error.message || "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요."
       );
   }
 
@@ -194,9 +194,6 @@ function LoginInner() {
         >
           카카오로 시작하기
         </button>
-        <p className="mt-3 text-center text-xs text-slate-400">
-          카카오 로그인은 설정이 필요합니다 (README 참고).
-        </p>
       </Card>
     </div>
   );
