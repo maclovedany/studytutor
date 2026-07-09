@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, ButtonLink, Card } from "@/components/ui";
+import ZoomMeeting from "@/components/ZoomMeeting";
 import { FREE_LIMIT_SECONDS, elapsedSeconds, shouldShowPaywall } from "@/lib/timer";
 import type { Consultation, Tier } from "@/lib/types";
 
@@ -95,12 +96,19 @@ export default function Room({
           <ButtonLink
             href={consultation.zoom_url ?? "#"}
             target="_blank"
-            variant="secondary"
+            variant={consultation.zoom_meeting_id ? "ghost" : "secondary"}
           >
-            Zoom으로 입장하기
+            {consultation.zoom_meeting_id ? "Zoom 앱으로 열기" : "Zoom으로 입장하기"}
           </ButtonLink>
         </div>
       </Card>
+
+      {/* 임베드 미팅 — 페이월이 뜨면 언마운트(자동 퇴장), 결제 후 재마운트(재입장) */}
+      {consultation.zoom_meeting_id && !paywall && (
+        <Card>
+          <ZoomMeeting consultationId={consultation.id} />
+        </Card>
+      )}
 
       {/* 결제 유도 모달 */}
       {paywall && (
