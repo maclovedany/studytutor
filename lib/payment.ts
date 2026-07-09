@@ -1,12 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { grantPoints } from "./points";
+import { MESSAGE_TEMPLATES, buildJobRow } from "./messages";
 
 /** 데모 결제 금액 (원) */
 export const DEMO_AMOUNT = 9900;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export interface DemoPaymentOptions {
   userId: string;
   consultationId: string;
+  now?: Date;
 }
 
 export interface DemoPaymentResult {
@@ -25,9 +29,9 @@ export interface DemoPaymentResult {
 export async function runDemoPayment(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   db: SupabaseClient | any,
-  { userId, consultationId }: DemoPaymentOptions
+  { userId, consultationId, now = new Date() }: DemoPaymentOptions
 ): Promise<DemoPaymentResult> {
-  const paidAt = new Date().toISOString();
+  const paidAt = now.toISOString();
 
   await db.from("payments").insert({
     user_id: userId,
@@ -46,6 +50,12 @@ export async function runDemoPayment(
     .eq("id", consultationId);
 
   await grantPoints(db, { userId, policyKey: "payment_completed" });
+
+  // 결제 즉시 감사 + 1일 후 사용 점검 메시지 예약
+  await db.from("message_jobs").insert([
+    buildJobRow(userId, MESSAGE_TEMPLATES.purchase_thanks, now),
+    buildJobRow(userId, MESSAGE_TEMPLATES.usage_checkin_d1, new Date(now.getTime() + DAY_MS)),
+  ]);
 
   return { tier: "paid" };
 }

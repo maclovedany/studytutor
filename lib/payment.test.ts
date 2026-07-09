@@ -10,6 +10,7 @@ function makeDb() {
       { policy_key: "payment_completed", name: "결제완료 보상", points: 5000, is_active: true },
     ],
     point_events: [],
+    message_jobs: [],
   };
   const updates: { table: string; fields: Record<string, unknown> }[] = [];
 
@@ -46,12 +47,16 @@ function makeDb() {
         },
       };
     }
-    insert(row: Record<string, unknown>) {
-      const inserted = { id: `${this.table}_${store[this.table].length}`, ...row };
-      store[this.table].push(inserted);
+    insert(rowOrRows: Record<string, unknown> | Record<string, unknown>[]) {
+      const rows = Array.isArray(rowOrRows) ? rowOrRows : [rowOrRows];
+      const inserted = rows.map((r, i) => ({
+        id: `${this.table}_${store[this.table].length + i}`,
+        ...r,
+      }));
+      store[this.table].push(...inserted);
       const thenable = {
-        then: (res: (v: unknown) => void) => res({ data: [inserted], error: null }),
-        select: () => ({ single: async () => ({ data: inserted, error: null }) }),
+        then: (res: (v: unknown) => void) => res({ data: inserted, error: null }),
+        select: () => ({ single: async () => ({ data: inserted[0], error: null }) }),
       };
       return thenable;
     }
@@ -78,4 +83,19 @@ test("runDemoPayment records payment, upgrades tier, resumes consultation, grant
   expect(store.consultations[0].status).toBe("resumed");
   expect(store.point_events).toHaveLength(1);
   expect(store.point_events[0].policy_key).toBe("payment_completed");
+});
+
+test("runDemoPayment 은 결제 즉시 감사 + 1일후 점검 메시지를 예약한다", async () => {
+  const { db, store } = makeDb();
+  const now = new Date("2026-07-09T00:00:00.000Z");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await runDemoPayment(db as any, { userId: "u1", consultationId: "c1", now });
+
+  expect(store.message_jobs).toHaveLength(2);
+  const byKey = Object.fromEntries(
+    store.message_jobs.map((j) => [j.template_key, j])
+  );
+  expect(byKey.purchase_thanks.scheduled_at).toBe("2026-07-09T00:00:00.000Z");
+  expect(byKey.usage_checkin_d1.scheduled_at).toBe("2026-07-10T00:00:00.000Z");
+  expect(byKey.purchase_thanks.status).toBe("pending");
 });
