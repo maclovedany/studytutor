@@ -82,14 +82,19 @@ function makeDb({
 }
 
 // ── 테스트 ────────────────────────────────────────────────────────────────
-test("grants signup + schedules 3 messages, no ref", async () => {
+test("grants signup + schedules 1 immediate message, no ref", async () => {
   const { db, store } = makeDb({ existingSignup: false });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const r = await runAfterSignup(db as any, { userId: "u1" });
   expect(r.granted).toContain("signup");
-  expect(r.messages).toBe(3);
+  expect(r.messages).toBe(1);
   expect(r.referred).toBe(false);
-  expect(store.message_jobs).toHaveLength(3);
+  expect(store.message_jobs).toHaveLength(1);
+  expect(store.message_jobs[0]).toMatchObject({
+    template_key: "signup_done",
+    channel: "kakao",
+    status: "pending",
+  });
 });
 
 test("idempotent when signup already granted", async () => {

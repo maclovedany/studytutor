@@ -1,18 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { grantPoints } from "./points";
-
-/** 가입 후 예약할 1/3/7일 메시지 (PRD 9.7) */
-const MESSAGE_TEMPLATES = [
-  { day: 1, template_key: "welcome_d1", message: "회원가입해주셔서 감사합니다" },
-  {
-    day: 3,
-    template_key: "remind_d3",
-    message: "아직 상담을 예약하지 않으셨다면 지금 시작해보세요",
-  },
-  { day: 7, template_key: "expire_d7", message: "첫 상담 혜택이 곧 종료됩니다" },
-] as const;
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { MESSAGE_TEMPLATES, buildJobRow } from "./messages";
 
 export interface AfterSignupOptions {
   userId: string;
@@ -31,7 +19,7 @@ export interface AfterSignupResult {
  *  - 이미 signup 포인트가 지급됐으면 전체 no-op
  *  - 신규가입 포인트 지급
  *  - 유효한 추천코드면 referrals 기록 + 가입자/추천인 포인트 지급(중복 referred_id는 skip)
- *  - 1/3/7일 메시지 예약 3건 생성
+ *  - 가입 즉시 발송 메시지(signup_done) 1건 예약
  */
 export async function runAfterSignup(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,16 +78,10 @@ export async function runAfterSignup(
     }
   }
 
-  // 1/3/7일 메시지 예약
-  const rows = MESSAGE_TEMPLATES.map((t) => ({
-    user_id: userId,
-    channel: "kakao",
-    template_key: t.template_key,
-    message: t.message,
-    scheduled_at: new Date(now.getTime() + t.day * DAY_MS).toISOString(),
-    status: "pending",
-  }));
-  await db.from("message_jobs").insert(rows);
+  // 가입 즉시 발송 메시지 1건 예약
+  await db
+    .from("message_jobs")
+    .insert(buildJobRow(userId, MESSAGE_TEMPLATES.signup_done, now));
 
-  return { granted, referred, messages: rows.length };
+  return { granted, referred, messages: 1 };
 }
