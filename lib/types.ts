@@ -86,6 +86,8 @@ export interface Consultation {
   id: string;
   user_id: string;
   zoom_url: string | null;
+  zoom_meeting_id: string | null;
+  zoom_password: string | null;
   status: ConsultationStatus;
   reserved_at: string;
   started_at: string | null;

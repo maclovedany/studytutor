@@ -218,3 +218,7 @@ insert into point_policies (policy_key, name, points) values
   ('consultation_reserved', '상담예약 보상',      500),
   ('payment_completed',     '결제완료 보상',     5000)
 on conflict (policy_key) do nothing;
+
+-- ===== 0004_zoom =====
+alter table consultations add column if not exists zoom_meeting_id text;
+alter table consultations add column if not exists zoom_password text;
