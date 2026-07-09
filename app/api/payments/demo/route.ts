@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { runDemoPayment } from "@/lib/payment";
+import { dispatchDueMessages } from "@/lib/dispatch";
 
 /** 데모 결제 — 본인 상담에 대해서만. 성공 시 유료회원(paid) 전환. */
 export async function POST(request: Request) {
@@ -36,5 +37,13 @@ export async function POST(request: Request) {
     userId: user.id,
     consultationId,
   });
+
+  // 결제 즉시 발송분(purchase_thanks) flush — 실패해도 결제 응답은 성공 처리
+  try {
+    await dispatchDueMessages(admin);
+  } catch (e) {
+    console.error("[코치링] 결제 즉시 발송 실패:", e);
+  }
+
   return NextResponse.json({ ok: true, ...result });
 }
