@@ -1,7 +1,10 @@
 import { ButtonLink, Card } from "@/components/ui";
 import { siteConfig } from "@/lib/site-config";
+import { getSessionProfile } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  const profile = await getSessionProfile();
+
   return (
     <div className="space-y-16">
       {/* Hero — 움직이는 오로라 배경 */}
@@ -28,12 +31,25 @@ export default function Home() {
             {siteConfig.subCopy}
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/consultations" className="px-6 py-3 text-base">
-              {siteConfig.ctaLabel}
-            </ButtonLink>
-            <ButtonLink href="/login" variant="secondary" className="px-6 py-3 text-base">
-              로그인 / 회원가입
-            </ButtonLink>
+            {profile ? (
+              <>
+                <ButtonLink href="/consultations" className="px-6 py-3 text-base">
+                  상담 예약하기
+                </ButtonLink>
+                <ButtonLink href="/mypage" variant="secondary" className="px-6 py-3 text-base">
+                  마이페이지
+                </ButtonLink>
+              </>
+            ) : (
+              <>
+                <ButtonLink href="/consultations" className="px-6 py-3 text-base">
+                  {siteConfig.ctaLabel}
+                </ButtonLink>
+                <ButtonLink href="/login" variant="secondary" className="px-6 py-3 text-base">
+                  로그인 / 회원가입
+                </ButtonLink>
+              </>
+            )}
           </div>
         </div>
       </section>
